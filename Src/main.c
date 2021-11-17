@@ -24,6 +24,10 @@
 #include "usart.h"
 #include "gpio.h"
 
+	uint8_t tx_data[] = "Data to send over UART DMA!\n\r";
+	uint8_t rx_data[10];
+	uint8_t count = 0;
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
@@ -63,13 +67,14 @@ int main(void)
 
   while (1)
   {
-	  /* Periodic transmission of information about DMA Rx buffer state.
-	   * Transmission frequency - 5Hz.
-	   * Message format - "Buffer capacity: %d bytes, occupied memory: %d bytes, load [in %]: %f%"
-	   * Example message (what I wish to see in terminal) - Buffer capacity: 1000 bytes, occupied memory: 231 bytes, load [in %]: 23.1%
-	   */
-
-  	  	  	  //type your code here:
+	#if POLLING
+		//Polling for new data, no interrupts
+		USART2_CheckDmaReception();
+		LL_mDelay(10);
+	#else
+		USART2_PutBuffer(tx_data, sizeof(tx_data));
+		LL_mDelay(1000);
+	#endif
   }
   /* USER CODE END 3 */
 }
@@ -111,9 +116,7 @@ void SystemClock_Config(void)
  */
 void proccesDmaData(uint8_t sign)
 {
-	/* Process received data */
 
-		// type your algorithm here:
 }
 
 
