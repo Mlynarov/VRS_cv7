@@ -23,6 +23,7 @@
 #include "dma.h"
 #include "usart.h"
 #include "gpio.h"
+#include <stdio.h>
 
 	uint8_t tx_data[] = "Data to send over UART DMA!\n\r";
 	uint8_t rx_data[10];
@@ -68,9 +69,10 @@ int main(void)
 
   while (1)
   {
+	  sprintf(tx_data, "Small %d and big %d",male,velke);
 	  USART2_CheckDmaReception();
-		USART2_PutBuffer(tx_data, sizeof(tx_data));
-		LL_mDelay(1000);
+	  USART2_PutBuffer(tx_data, sizeof(tx_data));
+	  LL_mDelay(1000);
   }
   /* USER CODE END 3 */
 }
