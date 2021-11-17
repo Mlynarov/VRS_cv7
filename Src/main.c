@@ -43,7 +43,10 @@ void proccesDmaData(uint8_t* sign,uint16_t len);
 /* Space for your global variables. */
 
 	// type your global variables here:
-
+int male=0;
+int velke=0;
+int startBit=0;
+int counter =0;
 
 int main(void)
 {
@@ -111,13 +114,9 @@ void proccesDmaData(uint8_t* sign,uint16_t len)
 {
 	int strToInt[20]={},i=0,j;
 	char in[20]={};
-	for(uint8_t o = 0 ;o = len ;o++){
+	for(uint8_t o = 0 ;o <= len ;o++){
 		in[o]=*(sign+o);
 	}
-	int male=0;
-	int velke=0;
-	int startBit=0;
-	int counter =0;
 	while(in[i]!='\0') {
 		strToInt[i]=in[i]; i++;}
 
@@ -146,8 +145,6 @@ void proccesDmaData(uint8_t* sign,uint16_t len)
 
 
 	}
-
-	return velke,male;
 
 }
 
