@@ -37,7 +37,7 @@ void SystemClock_Config(void);
  *
  * @param1 - received sign
  */
-void proccesDmaData(uint8_t sign);
+void proccesDmaData(uint8_t* sign,uint16_t len);
 
 
 /* Space for your global variables. */
@@ -107,8 +107,47 @@ void SystemClock_Config(void)
 /*
  * Implementation of function processing data received via USART.
  */
-void proccesDmaData(uint8_t sign)
+void proccesDmaData(uint8_t* sign,uint16_t len)
 {
+	int strToInt[20]={},i=0,j;
+	char in[20]={};
+	for(uint8_t o = 0 ;o = len ;o++){
+		in[o]=*(sign+o);
+	}
+	int male=0;
+	int velke=0;
+	int startBit=0;
+	int counter =0;
+	while(in[i]!='\0') {
+		strToInt[i]=in[i]; i++;}
+
+	for(j=0;j<i;j++){
+
+	    if (strToInt[j]==36){
+	        startBit=0;
+	    }
+	    if (strToInt[j]==35){
+	        startBit=1;
+	    }
+	    if (startBit==1&&strToInt[j]>=97&&strToInt[j]<=122){
+	        male++;
+	        counter++;
+	    }
+	    if (startBit==1&&strToInt[j]>=65&&strToInt[j]<=90){
+	        velke++;
+	        counter++;
+	    }
+	    if(startBit==1&&counter==35){
+	        velke =0;
+	        male =0;
+	        counter =0;
+	        startBit=0;
+	    }
+
+
+	}
+
+	return velke,male;
 
 }
 
