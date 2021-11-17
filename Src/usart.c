@@ -87,10 +87,10 @@ void MX_USART2_UART_Init(void)
 	LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_6);
 	LL_USART_EnableDMAReq_RX(USART2);
 
-#if !POLLING
-LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_6);
-LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_6);
-#endif
+	#if !POLLING
+		LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_6);
+		LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_6);
+	#endif
 
 
   /* USART2_TX Init */
@@ -108,25 +108,25 @@ LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_6);
 	LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_7);
 
 
-  /* USART2 interrupt Init */
-  NVIC_SetPriority(USART2_IRQn, 0);
-  NVIC_EnableIRQ(USART2_IRQn);
+	/* USART2 interrupt Init */
+	NVIC_SetPriority(USART2_IRQn, 0);
+	NVIC_EnableIRQ(USART2_IRQn);
 
-  USART_InitStruct.BaudRate = 115200;
-  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
-  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
-  USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
-  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
-  LL_USART_Init(USART2, &USART_InitStruct);
-  LL_USART_DisableIT_CTS(USART2);
+	USART_InitStruct.BaudRate = 115200;
+	USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
+	USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
+	USART_InitStruct.Parity = LL_USART_PARITY_NONE;
+	USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
+	USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+	USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
+	LL_USART_Init(USART2, &USART_InitStruct);
+	LL_USART_DisableIT_CTS(USART2);
 
-#if !POLLING
-  LL_USART_EnableIT_IDLE(USART2);
-#endif
-  LL_USART_ConfigAsyncMode(USART2);
-  LL_USART_Enable(USART2);
+	#if !POLLING
+	  LL_USART_EnableIT_IDLE(USART2);
+	#endif
+	LL_USART_ConfigAsyncMode(USART2);
+	LL_USART_Enable(USART2);
 }
 
 

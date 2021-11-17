@@ -61,20 +61,13 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
 
-  /* Space for your local variables, callback registration ...*/
-
-  	  //type your code here:
+  USART2_RegisterCallback(proccesDmaData);
 
   while (1)
   {
-	#if POLLING
-		//Polling for new data, no interrupts
-		USART2_CheckDmaReception();
-		LL_mDelay(10);
-	#else
+	  USART2_CheckDmaReception();
 		USART2_PutBuffer(tx_data, sizeof(tx_data));
 		LL_mDelay(1000);
-	#endif
   }
   /* USER CODE END 3 */
 }
