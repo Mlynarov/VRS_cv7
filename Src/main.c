@@ -25,10 +25,6 @@
 #include "gpio.h"
 #include <stdio.h>
 
-	uint8_t tx_data[] = "Data to send over UART DMA!\n\r";
-	uint8_t rx_data[10];
-	uint8_t count = 0;
-
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
@@ -39,13 +35,17 @@ void SystemClock_Config(void);
  * @param1 - received sign
  */
 void proccesDmaData(uint8_t* sign,uint16_t len);
+void sendData(uint8_t* data,uint16_t len);
 
 
 /* Space for your global variables. */
 
 	// type your global variables here:
+uint8_t tx_data[] = "Data to send over UART DMA!\n\r";
+uint8_t rx_data[10];
+uint8_t count = 0;
 int small=0;
-int large=0;
+int capitals =0;
 
 int s=0;
 int l=0;
@@ -73,9 +73,7 @@ int main(void)
 
   while (1)
   {
-	  sprintf(tx_data, "Small %d and big %d",male,velke);
-	  USART2_CheckDmaReception();
-	  USART2_PutBuffer(tx_data, sizeof(tx_data));
+	  sendData(tx_data,sizeof(tx_data));
 	  LL_mDelay(1000);
   }
   /* USER CODE END 3 */
@@ -118,45 +116,41 @@ void SystemClock_Config(void)
  */
 void proccesDmaData(uint8_t* sign,uint16_t len)
 {
-	int strToInt[20]={},i=0,j;
-	char in[20]={};
-	for(uint8_t o = 0 ;o <= len ;o++){
-		in[o]=*(sign+o);
+	uint8_t *data;
+	for(int j=0;j<len;j++){
+		if (*(sign+j)=='#'){
+			startBit=1;
+		}
+		if (startBit==1 && *(sign+j)>='a' && *(sign+j)<='z'){
+			s++;
+			counter++;
+		}
+		if (startBit==1 && *(sign+j)>='A' && *(sign+j)<='Z'){
+			l++;
+			counter++;
+		}
+		if (*(sign+j)=='$'){
+			capitals =l;
+			small=s;
+			s=0;
+			l=0;
+			startBit=0;
+			counter=0;
+			int len_data = asprintf(&data, "Small letters %d and capital letters %d\n\r",small,capitals);
+			sendData(data,len_data);
+		}
+		if(startBit==1 && counter==35){
+			l =0;
+			s =0;
+			counter =0;
+			startBit=0;
+		}
 	}
-	while(in[i]!='\0') {
-		strToInt[i]=in[i]; i++;}
+}
 
-	for(j=0;j<i;j++){
-
-	    if (strToInt[j]==36){
-	    	large=l;
-	    	small=s;
-	    	s=0;
-	    	l=0;
-	    	startBit=0;
-	    	counter=0;
-	    }
-	    if (strToInt[j]==35){
-	        startBit=1;
-	    }
-	    if (startBit==1&&strToInt[j]>=97&&strToInt[j]<=122){
-	        s++;
-	        counter++;
-	    }
-	    if (startBit==1&&strToInt[j]>=65&&strToInt[j]<=90){
-	        l++;
-	        counter++;
-	    }
-	    if(startBit==1&&counter==35){
-	        l =0;
-	        s =0;
-	        counter =0;
-	        startBit=0;
-	    }
-
-
-	}
-
+void sendData(uint8_t* data,uint16_t len)
+{
+	USART2_PutBuffer(data, len);
 }
 
 
