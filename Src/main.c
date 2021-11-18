@@ -35,15 +35,13 @@ void SystemClock_Config(void);
  * @param1 - received sign
  */
 void proccesDmaData(uint8_t* sign,uint16_t len);
+void calculateMemory();
 void sendData(uint8_t* data,uint16_t len);
 
 
 /* Space for your global variables. */
 
 	// type your global variables here:
-uint8_t tx_data[] = "Data to send over UART DMA!\n\r";
-uint8_t rx_data[10];
-uint8_t count = 0;
 int small=0;
 int capitals =0;
 
@@ -73,7 +71,8 @@ int main(void)
 
   while (1)
   {
-	  sendData(tx_data,sizeof(tx_data));
+
+	  calculateMemory();
 	  LL_mDelay(1000);
   }
   /* USER CODE END 3 */
@@ -116,7 +115,7 @@ void SystemClock_Config(void)
  */
 void proccesDmaData(uint8_t* sign,uint16_t len)
 {
-	uint8_t *data;
+	uint8_t *tx_data;
 	for(int j=0;j<len;j++){
 		if (*(sign+j)=='#'){
 			startBit=1;
@@ -136,8 +135,8 @@ void proccesDmaData(uint8_t* sign,uint16_t len)
 			l=0;
 			startBit=0;
 			counter=0;
-			int len_data = asprintf(&data, "Small letters %d and capital letters %d\n\r",small,capitals);
-			sendData(data,len_data);
+			int len_data = asprintf(&tx_data, "Small letters %d and capital letters %d\n\r",small,capitals);
+			sendData(tx_data,len_data);
 		}
 		if(startBit==1 && counter==35){
 			l =0;
@@ -153,6 +152,21 @@ void sendData(uint8_t* data,uint16_t len)
 	USART2_PutBuffer(data, len);
 }
 
+
+void calculateMemory()
+{
+	uint16_t size;
+	uint16_t occupied;
+	char *tx_data;
+	uint16_t len_data;
+	float percent = 0;
+
+	size = DMA_USART2_BUFFER_SIZE;
+	occupied = DMA_USART2_BUFFER_SIZE - LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_6);
+	percent = 100.0/size*occupied;
+	len_data = asprintf(&tx_data, "Buffer capacity: %d bytes, occupied memory: %d bytes, load [in ~%%]: %d%%\n\r",size,occupied,(int)percent);
+	sendData(tx_data,len_data);
+}
 
 void Error_Handler(void)
 {
