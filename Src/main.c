@@ -44,8 +44,12 @@ void proccesDmaData(uint8_t* sign,uint16_t len);
 /* Space for your global variables. */
 
 	// type your global variables here:
-int male=0;
-int velke=0;
+int small=0;
+int large=0;
+
+int s=0;
+int l=0;
+
 int startBit=0;
 int counter =0;
 
@@ -125,22 +129,27 @@ void proccesDmaData(uint8_t* sign,uint16_t len)
 	for(j=0;j<i;j++){
 
 	    if (strToInt[j]==36){
-	        startBit=0;
+	    	large=l;
+	    	small=s;
+	    	s=0;
+	    	l=0;
+	    	startBit=0;
+	    	counter=0;
 	    }
 	    if (strToInt[j]==35){
 	        startBit=1;
 	    }
 	    if (startBit==1&&strToInt[j]>=97&&strToInt[j]<=122){
-	        male++;
+	        s++;
 	        counter++;
 	    }
 	    if (startBit==1&&strToInt[j]>=65&&strToInt[j]<=90){
-	        velke++;
+	        l++;
 	        counter++;
 	    }
 	    if(startBit==1&&counter==35){
-	        velke =0;
-	        male =0;
+	        l =0;
+	        s =0;
 	        counter =0;
 	        startBit=0;
 	    }
