@@ -39,37 +39,8 @@ void USART2_RegisterCallback(void *callback)
 
 	// type global variables here
 
-
-/* USART2 init function */
-void MX_USART2_UART_Init(void)
+void LL_DMA_RX_Init(void)
 {
-  LL_USART_InitTypeDef USART_InitStruct = {0};
-
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-  /* Peripheral clock enable */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
-  
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-  /**USART2 GPIO Configuration  
-  PA2   ------> USART2_TX
-  PA15   ------> USART2_RX 
-  */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_2|LL_GPIO_PIN_15;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_7;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*
-   * USART2 DMA configuration. Write configuration for DMA used by USART2 for data Rx/Tx with INTERRUPTS.
-   * Rx memory buffer will be handled in normal mode, not circular!
-   * You can use configuration from example program and modify it.
-   * For more information about DMA registers, refer to reference manual.
-   */
-  
-  /* USART2_RX Init */
 	LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_6, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 	LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_6, LL_DMA_PRIORITY_MEDIUM);
 	LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_6, LL_DMA_MODE_NORMAL);
@@ -87,13 +58,44 @@ void MX_USART2_UART_Init(void)
 	LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_6);
 	LL_USART_EnableDMAReq_RX(USART2);
 
-	#if !POLLING
-		LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_6);
-		LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_6);
-	#endif
+	LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_6);
+	LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_6);
+}
+
+/* USART2 init function */
+void MX_USART2_UART_Init(void)
+{
+	LL_USART_InitTypeDef USART_InitStruct = {0};
+
+	LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+	/* Peripheral clock enable */
+	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
+
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+	/**USART2 GPIO Configuration
+	PA2   ------> USART2_TX
+	PA15   ------> USART2_RX
+	*/
+	GPIO_InitStruct.Pin = LL_GPIO_PIN_2|LL_GPIO_PIN_15;
+	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	GPIO_InitStruct.Alternate = LL_GPIO_AF_7;
+	LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	/*
+	* USART2 DMA configuration. Write configuration for DMA used by USART2 for data Rx/Tx with INTERRUPTS.
+	* Rx memory buffer will be handled in normal mode, not circular!
+	* You can use configuration from example program and modify it.
+	* For more information about DMA registers, refer to reference manual.
+	*/
+
+	/* USART2_RX Init */
+	LL_DMA_RX_Init();
 
 
-  /* USART2_TX Init */
+	/* USART2_TX Init */
 	LL_DMA_SetDataTransferDirection(DMA1, LL_DMA_CHANNEL_7, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
 	LL_DMA_SetChannelPriorityLevel(DMA1, LL_DMA_CHANNEL_7, LL_DMA_PRIORITY_MEDIUM);
 	LL_DMA_SetMode(DMA1, LL_DMA_CHANNEL_7, LL_DMA_MODE_NORMAL);
@@ -122,9 +124,7 @@ void MX_USART2_UART_Init(void)
 	LL_USART_Init(USART2, &USART_InitStruct);
 	LL_USART_DisableIT_CTS(USART2);
 
-	#if !POLLING
-	  LL_USART_EnableIT_IDLE(USART2);
-	#endif
+	LL_USART_EnableIT_IDLE(USART2);
 	LL_USART_ConfigAsyncMode(USART2);
 	LL_USART_Enable(USART2);
 }
@@ -163,24 +163,19 @@ void USART2_CheckDmaReception(void)
 		{
 			USART2_ProcessData(&bufferUSART2dma[old_pos], pos - old_pos);
 		}
-		else
-		{
-			USART2_ProcessData(&bufferUSART2dma[old_pos], DMA_USART2_BUFFER_SIZE - old_pos);
-
-			if (pos > 0)
-			{
-				USART2_ProcessData(&bufferUSART2dma[0], pos);
-			}
-		}
 	}
 
 	old_pos = pos;
 
-	if (old_pos == DMA_USART2_BUFFER_SIZE)
+	if (pos+20 >= DMA_USART2_BUFFER_SIZE)
 	{
+		LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_6);
+		LL_DMA_RX_Init();
 		old_pos = 0;
 	}
 }
+
+
 
 
 
