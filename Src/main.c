@@ -24,6 +24,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -137,8 +138,9 @@ void proccesDmaData(uint8_t* sign,uint16_t len)
 			counter=0;
 			int len_data = asprintf(&tx_data, "Small letters %d and capital letters %d\n\r",small,capitals);
 			sendData(tx_data,len_data);
+			free(tx_data);
 		}
-		if(startBit==1 && counter==35){
+		if(startBit==1 && counter>=35){
 			l =0;
 			s =0;
 			counter =0;
@@ -157,15 +159,16 @@ void calculateMemory()
 {
 	uint16_t size;
 	uint16_t occupied;
-	char *tx_data;
+	uint8_t *tx_data;
 	uint16_t len_data;
 	float percent = 0;
 
 	size = DMA_USART2_BUFFER_SIZE;
 	occupied = DMA_USART2_BUFFER_SIZE - LL_DMA_GetDataLength(DMA1, LL_DMA_CHANNEL_6);
 	percent = 100.0/size*occupied;
-	len_data = asprintf(&tx_data, "Buffer capacity: %d bytes, occupied memory: %d bytes, load [in ~%%]: %d%%\n\r",size,occupied,(int)percent);
+	len_data = asprintf(&tx_data, "Buffer capacity: %3d bytes, occupied memory: %3d bytes, load [in ~%%]: %3d%%\n\r",size,occupied,(int)percent);
 	sendData(tx_data,len_data);
+	free(tx_data);
 }
 
 void Error_Handler(void)
